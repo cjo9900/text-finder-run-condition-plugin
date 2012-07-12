@@ -51,6 +51,9 @@ public class TextFinderConditionTest extends HudsonTestCase {
 
         condition = new TextFinderCondition("*.txt", "ANY match", false);
         runtest(condition, true);
+
+        condition = new TextFinderCondition("*.txt", "T??t", false);
+        runtest(condition, true);
     }
 
     @Test
@@ -60,6 +63,9 @@ public class TextFinderConditionTest extends HudsonTestCase {
         runtest(condition, false);
 
         condition = new TextFinderCondition("", "console match only", true);
+        runtest(condition, true);
+
+        condition = new TextFinderCondition("", "t??t", true);
         runtest(condition, true);
 
     }
@@ -72,12 +78,15 @@ public class TextFinderConditionTest extends HudsonTestCase {
         condition = new TextFinderCondition("*.txt", "Some", true);
         runtest(condition, true);
 
+        condition = new TextFinderCondition("*.txt", "T??t", false);
+        runtest(condition, true);
+
     }
     private void runtest(TextFinderCondition condition, boolean expected) throws Exception  {
 
         // extend and replace with passed in param if we are need to test more varing case.
-        String consoleText = "Some Text for the console\nconsole match only";
-        String fileText = "Some text to add to the file\nANY match";
+        String consoleText = "Some text for the console\nconsole match only";
+        String fileText = "Some Text to add to the file\nANY match";
         String fileExt = ".txt";
         int numberOfOtherFiles = 3;
 
