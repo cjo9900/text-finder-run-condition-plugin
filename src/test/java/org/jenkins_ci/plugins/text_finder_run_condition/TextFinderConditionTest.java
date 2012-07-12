@@ -24,25 +24,18 @@
 package org.jenkins_ci.plugins.text_finder_run_condition;
 
 import hudson.model.*;
-import hudson.triggers.TimerTrigger.TimerTriggerCause;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import org.acegisecurity.Authentication;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import hudson.FilePath;
-
-
 import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import org.junit.Test;
 import org.jvnet.hudson.test.HudsonTestCase;
 
 public class TextFinderConditionTest extends HudsonTestCase {
     //-------------------------------------------------------
+
     @Test
     public void testFileMatching() throws Exception {
 
@@ -69,6 +62,7 @@ public class TextFinderConditionTest extends HudsonTestCase {
         runtest(condition, true);
 
     }
+
     @Test
     public void testBothMatching() throws Exception {
 
@@ -82,7 +76,8 @@ public class TextFinderConditionTest extends HudsonTestCase {
         runtest(condition, true);
 
     }
-    private void runtest(TextFinderCondition condition, boolean expected) throws Exception  {
+
+    private void runtest(TextFinderCondition condition, boolean expected) throws Exception {
 
         // extend and replace with passed in param if we are need to test more varing case.
         String consoleText = "Some text for the console\nconsole match only";
@@ -95,7 +90,7 @@ public class TextFinderConditionTest extends HudsonTestCase {
 
         FilePath ws = build.getWorkspace();
 
-        if(ws == null) {
+        if (ws == null) {
             System.out.println("build workspace not avalible in test");
         } else {
             //create file with matche in workspace
@@ -109,7 +104,7 @@ public class TextFinderConditionTest extends HudsonTestCase {
 
         }
         System.out.println("build logfile: " + build.getLogFile().toString());
-        if(build.getLogFile().canWrite()) {
+        if (build.getLogFile().canWrite()) {
             OutputStream outputStream = new FileOutputStream(build.getLogFile());
             Writer writer = new OutputStreamWriter(outputStream);
 
@@ -121,7 +116,7 @@ public class TextFinderConditionTest extends HudsonTestCase {
         }
 
         //need to use a different listener if we are checking console log
-        StreamBuildListener listener = new StreamBuildListener(System.out,Charset.defaultCharset());
+        StreamBuildListener listener = new StreamBuildListener(System.out, Charset.defaultCharset());
 
         boolean testresult = condition.runPerform(build, listener);
         assertEquals(expected, testresult);

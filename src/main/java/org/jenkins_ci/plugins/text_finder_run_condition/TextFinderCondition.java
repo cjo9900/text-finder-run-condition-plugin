@@ -21,39 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package org.jenkins_ci.plugins.text_finder_run_condition;
 
-
 import hudson.Extension;
-import hudson.Util;
+import hudson.FilePath.FileCallable;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
-import hudson.util.QuotedStringTokenizer;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import org.jenkins_ci.plugins.run_condition.common.AlwaysPrebuildRunCondition;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-import org.apache.commons.io.IOUtils;
 import hudson.remoting.RemoteOutputStream;
 import hudson.remoting.VirtualChannel;
-import java.io.PrintStream;
-import java.io.IOException;
+import hudson.Util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import hudson.FilePath.FileCallable;
-import java.io.Serializable;
+import org.apache.commons.io.IOUtils;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.types.FileSet;
+import org.jenkins_ci.plugins.run_condition.common.AlwaysPrebuildRunCondition;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * Run condition to search files for text strings.
@@ -85,7 +75,6 @@ public class TextFinderCondition extends AlwaysPrebuildRunCondition implements S
 
     }
 
-
     public TextFinderCondition() {
         this.fileSet = null;
         this.regexp = null;
@@ -99,11 +88,11 @@ public class TextFinderCondition extends AlwaysPrebuildRunCondition implements S
      *         Otherwise the result of the condition runPerform @see BuildCauseCondition
      */
     @Override
-    public boolean runPerform(AbstractBuild<?, ?> build, BuildListener listener) throws  IOException, InterruptedException {
+    public boolean runPerform(AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
         return findText(build, listener.getLogger());
     }
 
-/**
+    /**
      * Indicates an orderly abortion of the processing.
      */
     private static final class AbortException extends RuntimeException {
@@ -112,7 +101,7 @@ public class TextFinderCondition extends AlwaysPrebuildRunCondition implements S
     private boolean findText(AbstractBuild build, PrintStream logger) throws IOException, InterruptedException {
         boolean foundText = false;
         try {
-            if(checkConsoleOutput) {
+            if (checkConsoleOutput) {
                 logger.println("Checking console output");
                 foundText |= checkFile(build.getLogFile(), compilePattern(logger), logger);
             } else {
@@ -123,14 +112,15 @@ public class TextFinderCondition extends AlwaysPrebuildRunCondition implements S
             }
 
             // no need to search through files if matched in console log
-            if(foundText == true) {
+            if (foundText == true) {
                 return foundText;
             }
 
             final RemoteOutputStream ros = new RemoteOutputStream(logger);
 
-            if(fileSet!=null) {
+            if (fileSet != null) {
                 foundText |= build.getWorkspace().act(new FileCallable<Boolean>() {
+
                     public Boolean invoke(File ws, VirtualChannel channel) throws IOException {
                         PrintStream logger = new PrintStream(ros);
 
@@ -145,8 +135,8 @@ public class TextFinderCondition extends AlwaysPrebuildRunCondition implements S
                         // Any files in the final set?
                         String[] files = ds.getIncludedFiles();
                         if (files.length == 0) {
-                            logger.println("Text Finder run condition: File set '" +
-                                    fileSet + "' is empty");
+                            logger.println("Text Finder run condition: File set '"
+                                    + fileSet + "' is empty");
                             throw new AbortException();
                         }
 
@@ -158,18 +148,18 @@ public class TextFinderCondition extends AlwaysPrebuildRunCondition implements S
                             File f = new File(ws, file);
 
                             if (!f.exists()) {
-                                logger.println("Text Finder run condition: Unable to" +
-                                    " find file '" + f + "'");
+                                logger.println("Text Finder run condition: Unable to"
+                                        + " find file '" + f + "'");
                                 continue;
                             }
                             if (!f.canRead()) {
-                                logger.println("Text Finder run condition: Unable to" +
-                                    " read from file '" + f + "'");
+                                logger.println("Text Finder run condition: Unable to"
+                                        + " read from file '" + f + "'");
                                 continue;
                             }
 
                             foundText |= checkFile(f, pattern, logger);
-                            if(foundText == true) {
+                            if (foundText == true) {
                                 // no need to search through rest of files if matched
                                 break;
                             }
@@ -193,7 +183,7 @@ public class TextFinderCondition extends AlwaysPrebuildRunCondition implements S
     private boolean checkFile(File f, Pattern pattern, PrintStream logger) {
 
         boolean foundText = false;
-        BufferedReader reader=null;
+        BufferedReader reader = null;
         try {
             // Assume default encoding and text files
             String line;
@@ -208,8 +198,8 @@ public class TextFinderCondition extends AlwaysPrebuildRunCondition implements S
                 }
             }
         } catch (IOException e) {
-            logger.println("Jenkins Text Finder: Error reading" +
-                " file '" + f + "' -- ignoring");
+            logger.println("Jenkins Text Finder: Error reading"
+                    + " file '" + f + "' -- ignoring");
         } finally {
             IOUtils.closeQuietly(reader);
         }
@@ -230,6 +220,7 @@ public class TextFinderCondition extends AlwaysPrebuildRunCondition implements S
 
     @Extension
     public static class TextFinderConditionDescriptor extends RunConditionDescriptor {
+
         @Override
         public String getDisplayName() {
             return Messages.TextFinderCondition_DisplayName();
